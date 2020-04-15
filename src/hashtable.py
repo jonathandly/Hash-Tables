@@ -7,6 +7,9 @@ class LinkedPair:
         self.value = value
         self.next = None
 
+    def __repr__(self):
+        return f'Key is {self.key} and Value is {self.value} and next is {self.next}'
+
 class HashTable:
     '''
     A hash table that with `capacity` buckets
@@ -55,9 +58,20 @@ class HashTable:
         Fill this in.
         '''
         index = self._hash_mod(key)
-        if self.storage[index] is not None:
-            print("ALERT: Collision detected for key " + key)
-        self.storage[index] = LinkedPair(key,value)
+        current_pair = self.storage[index]
+        previous_pair = None
+        while current_pair is not None and current_pair.key != key:
+            previous_pair = current_pair
+            current_pair = previous_pair.next
+        
+        if current_pair is not None:
+            # print("ALERT: Collision detected for key " + key)
+            # print(self.storage[index])
+            current_pair.value = value
+        else:
+            new_pair = LinkedPair(key,value)
+            new_pair.next = self.storage[index]
+            self.storage[index] = new_pair
 
 
 
@@ -70,6 +84,8 @@ class HashTable:
         Fill this in.
         '''
         index = self.storage._hash_mod(key)
+        if index is None:
+            print('WARN: Key not found!')
         self.storage[index] = None
 
 
@@ -82,6 +98,14 @@ class HashTable:
         Fill this in.
         '''
         index = self._hash_mod(key)
+        current_pair = self.storage[index]
+
+        while current_pair is not None:
+            if current_pair.key == key:
+                return current_pair.value
+                
+            current_pair = current_pair.next
+
         if self.storage[index] is None:
             return None
 
@@ -101,36 +125,44 @@ class HashTable:
         self.storage = [None] * self.capacity
 
         for pair in old_storage:
-            new_index = self._hash_mod(pair.key)
+            if pair is not None:
+                new_index = self._hash_mod(pair.key)
 
-            self.insert(pair.key, pair.value)
+                self.insert(pair.key, pair.value)
 
 
+ht = HashTable(2)
 
-if __name__ == "__main__":
-    ht = HashTable(2)
+ht.insert("line_1", "Tiny hash table")
+ht.insert("line_2", "Filled beyond capacity")
+ht.insert("line_3", "Linked list saves the day!")
 
-    ht.insert("line_1", "Tiny hash table")
-    ht.insert("line_2", "Filled beyond capacity")
-    ht.insert("line_3", "Linked list saves the day!")
+print(ht.retrieve('line_2'))
 
-    print("")
+# if __name__ == "__main__":
+#     ht = HashTable(2)
 
-    # Test storing beyond capacity
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+#     ht.insert("line_1", "Tiny hash table")
+#     ht.insert("line_2", "Filled beyond capacity")
+#     ht.insert("line_3", "Linked list saves the day!")
 
-    # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+#     print("")
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+#     # Test storing beyond capacity
+#     print(ht.retrieve("line_1"))
+#     print(ht.retrieve("line_2"))
+#     print(ht.retrieve("line_3"))
 
-    # Test if data intact after resizing
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+#     # Test resizing
+#     old_capacity = len(ht.storage)
+#     ht.resize()
+#     new_capacity = len(ht.storage)
 
-    print("")
+#     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+
+#     # Test if data intact after resizing
+#     print(ht.retrieve("line_1"))
+#     print(ht.retrieve("line_2"))
+#     print(ht.retrieve("line_3"))
+
+#     print("")
